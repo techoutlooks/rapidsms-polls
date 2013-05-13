@@ -57,19 +57,19 @@ def polls(req):
 
 def demo(req, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
-    (b1, created) = Backend.objects.get_or_create(name='dmark')
+    (b1, created) = Backend.objects.get_or_create(name='Agregator1')
 
     # Terra
 
     (c1, created) = \
-        Connection.objects.get_or_create(identity='256785137868',
+        Connection.objects.get_or_create(identity='6262',
             defaults={'backend': b1})
 
     # Sharad
 
     (b2, created) = Backend.objects.get_or_create(name='utl')
     (c2, created) = \
-        Connection.objects.get_or_create(identity='256717171100',
+        Connection.objects.get_or_create(identity='6262',
             defaults={'backend': b2})
     router = get_router()
     outgoing = OutgoingMessage(c1,

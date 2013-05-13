@@ -13,8 +13,8 @@ setup(
 
     description='An application for a simple communication modality with SMS users: prompted questions, simple, training-less answers.',
     long_description=open('README.rst').read(),
-    author='David McCann',
-    author_email='david.a.mccann@gmail.com',
+    author='Engulu Paul',
+    author_email='askpaul82@gmail.com',
 
     url='http://github.com/daveycrockett/rapidsms-polls',
     download_url='http://github.com/daveycrockett/rapidsms-polls/downloads',
