@@ -228,7 +228,7 @@ class Poll(models.Model):
 
     @classmethod
     @transaction.commit_on_success
-    def create_with_bulk(cls, name, type, question, default_response, contacts, user):
+    def create_with_bulk(cls, name, type, question, default_response, contacts, user, is_urgent=False):
         log.info("[Poll.create_with_bulk] TRANSACTION START")
         log.info("[Poll.create_with_bulk] Creating a poll with bulk contacts...")
 
@@ -252,7 +252,9 @@ class Poll(models.Model):
         poll.contacts.add(*contacts.values_list('pk', flat=True))
 
         log.info("[Poll.create_with_bulk] Create message batch...")
-        MessageBatch.objects.get_or_create(name=str(poll.pk))
+        batch = MessageBatch.objects.get_or_create(name=str(poll.pk))[0]
+        batch.priority = 0 if is_urgent else 1
+        batch.save()
 
         log.info("[Poll.create_with_bulk] Adding the site...")
         if 'django.contrib.sites' in settings.INSTALLED_APPS:
