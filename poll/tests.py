@@ -31,6 +31,9 @@ class TestScript(TestCase):
         router = get_router()
         return router.handle_incoming(connection.backend.name, connection.identity, incoming_message)
 
+    SHOULD_HAVE_RESPONSE=True
+    SHOULD_NOT_HAVE_RESPONSE=False
+
     def assertInteraction(self, connection, incoming_message, expected_response, should_have_response=True):
         incoming_obj = self.fake_incoming(connection, incoming_message)
         print incoming_obj
