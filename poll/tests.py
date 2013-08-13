@@ -1,15 +1,12 @@
-from django.test import TestCase
-from poll.models import STARTSWITH_PATTERN_TEMPLATE
 import re
 
+from django.test import TestCase
 from django.contrib.auth.models import User
-
+from poll.models import STARTSWITH_PATTERN_TEMPLATE
 from rapidsms.models import Contact, Connection, Backend
 from poll.models import Poll, Response, Category, Rule,Translation
 from rapidsms_httprouter.router import get_router
 from rapidsms_httprouter.models import Message, MessageBatch
-from django.utils import translation
-
 
 
 class BasicPatternTemplateTest(TestCase):
@@ -34,15 +31,11 @@ class TestScript(TestCase):
         router = get_router()
         return router.handle_incoming(connection.backend.name, connection.identity, incoming_message)
 
-    SHOULD_HAVE_RESPONSE=True
-    SHOULD_NOT_HAVE_RESPONSE=False
-
     def assertInteraction(self, connection, incoming_message, expected_response, should_have_response=True):
         incoming_obj = self.fake_incoming(connection, incoming_message)
         print incoming_obj
         if should_have_response:
             self.assertEquals(Message.objects.filter(in_response_to=incoming_obj, text=expected_response).count(), 1, " There should be a message with expected response [%s]" % expected_response)
-
 
 class ProcessingTests(TestScript):
 
