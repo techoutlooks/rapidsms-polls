@@ -5,20 +5,23 @@ import datetime
 from rapidsms.apps.base import AppBase
 from .models import Poll
 from django.db.models import Q
-from rapidsms_httprouter.models import Message,MessageBatch
+from rapidsms_httprouter.models import Message, MessageBatch
 
 import logging
+
 log = logging.getLogger(__name__)
 
+
 class App(AppBase):
-    def respond_to_message(self,message,response_msg,poll):
+    def respond_to_message(self, message, response_msg, poll):
 
         if response_msg == poll.default_response:
             try:
-                batch=MessageBatch.objects.get(name=str(poll.pk))
-                batch.status="Q"
+                batch = MessageBatch.objects.get(name=str(poll.pk))
+                batch.status = "Q"
                 batch.save()
-                msg=Message.objects.create(text=response_msg,status="Q",connection=message.connection,direction="O",in_response_to=message.db_message)
+                msg = Message.objects.create(text=response_msg, status="Q", connection=message.connection,
+                                             direction="O", in_response_to=message.db_message)
                 batch.messages.add(msg)
             except MessageBatch.DoesNotExist:
                 message.respond(response_msg)
@@ -26,28 +29,31 @@ class App(AppBase):
             message.respond(response_msg)
 
 
-    def handle (self, message):
+    def handle(self, message):
         # see if this contact matches any of our polls
         if message.connection is not None and message.db_message.pk:
-            log.debug("[poll-app] [{}] Handling incoming message [pk={}]...".format(message.connection.identity, message.db_message.pk))
+            log.debug("[poll-app] [{}] Handling incoming message [pk={}]...".format(message.connection.identity,
+                                                                                    message.db_message.pk))
 
         if message.db_message is None:
             log.debug("[poll-app] Incoming message doesn't have a db message!!")
 
-        if (message.connection.contact):
+        if message.connection.contact:
             try:
-                poll = Poll.objects.filter(contacts=message.connection.contact).exclude(start_date=None)\
-                    .filter(Q(end_date=None) | (~Q(end_date=None) & Q(end_date__gt=datetime.datetime.now())))\
+                poll = Poll.objects.filter(contacts=message.connection.contact).exclude(start_date=None) \
+                    .filter(Q(end_date=None) | Q(end_date__gt=datetime.datetime.now())) \
                     .latest('start_date')
 
                 log.debug("[poll-app] Found poll for message [{}]".format(str(poll)))
 
-                if  poll.responses.filter(contact=message.connection.contact).exists():
-                    old_response=poll.responses.filter(contact=message.connection.contact)[0]
+                if poll.responses.filter(contact=message.connection.contact).exists():
+                    old_response = poll.responses.filter(contact=message.connection.contact)[0]
                     log.debug("[poll-app] Processing response again (theres already one from this contact)")
                     response_obj, response_msg = poll.process_response(message)
-                    if poll.response_type == Poll.RESPONSE_TYPE_ONE :
-                        log.debug("[poll-app] Poll only allows one response per person, overwriting old response and replying...")
+                    if poll.response_type == Poll.RESPONSE_TYPE_ONE:
+                        log.debug(
+                            "[poll-app] Poll only allows one response per person, overwriting old response "
+                            "and replying...")
                         if not response_obj.has_errors or old_response.has_errors:
                             old_response.delete()
                             if hasattr(message, 'db_message'):
@@ -55,13 +61,14 @@ class App(AppBase):
                                 db_message.handled_by = 'poll'
                                 db_message.save()
                             if response_msg and response_msg.strip():
-                                self.respond_to_message(message,response_msg,poll)
+                                self.respond_to_message(message, response_msg, poll)
                         else:
                             response_obj.delete()
                         log.debug("[poll-app] Message handled.")
                         return False
                     else:
-                        log.debug("[poll-app] Recorded response but NOT sending the response message [%s]." % str(response_msg))
+                        log.debug("[poll-app] Recorded response but NOT sending the response message [%s]." % str(
+                            response_msg))
                         log.debug("[poll-app] Message handled.")
                         return False
 
@@ -76,10 +83,10 @@ class App(AppBase):
                         db_message.handled_by = 'poll'
                         db_message.save()
                     if response_msg and response_msg.strip():
-                        self.respond_to_message(message,response_msg,poll)
-                    elif poll.default_response :
+                        self.respond_to_message(message, response_msg, poll)
+                    elif poll.default_response:
                         #send default response anyway even for errors
-                        self.respond_to_message(message,poll.default_response,poll)
+                        self.respond_to_message(message, poll.default_response, poll)
 
                     log.debug("[poll-app] Message handled.")
                     # play nice, let other things handle responses

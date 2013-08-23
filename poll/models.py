@@ -32,7 +32,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-
 poll_started = django.dispatch.Signal(providing_args=[])
 
 # The standard template allows for any amount of whitespace at the beginning,
@@ -240,7 +239,9 @@ class Poll(models.Model):
                 contactsBefore = len(contacts)
                 contacts = contacts.exclude(connection__pk__in=blacklists)
                 contactsAfter = len(contacts)
-                log.info("[Poll.create_with_bulk] excluded [%d] blacklisted contacts. This poll will have [%d] active contacts." % ((contactsBefore - contactsAfter), contactsAfter))
+                log.info(
+                    "[Poll.create_with_bulk] excluded [%d] blacklisted contacts. This poll will have [%d] active contacts." % (
+                        (contactsBefore - contactsAfter), contactsAfter))
             except:
                 raise Exception("Your Blacklist Model is Improperly configured")
         log.info("[Poll.create_with_bulk] ignored blacklist ok.")
@@ -296,7 +297,8 @@ class Poll(models.Model):
                 rule_type=Rule.TYPE_REGEX,
                 rule_string=(STARTSWITH_PATTERN_TEMPLATE % no_rule_string))
 
-        self.log_poll_message_info(" Poll creation categories - [{}]".format([str(category) for  category in self.categories.all()]))
+        self.log_poll_message_info(
+            " Poll creation categories - [{}]".format([str(category) for category in self.categories.all()]))
 
     def is_yesno_poll(self):
         return self.categories.count() == 3 and \
@@ -328,7 +330,7 @@ class Poll(models.Model):
         batches = MessageBatch.objects.filter(name=self.get_outgoing_message_batch_name()).all()
         self.log_poll_message_info("Queueing [%d] MessageBatches for sending." % len(batches))
         for batch in batches:
-            batch.status="Q"
+            batch.status = "Q"
             batch.save()
 
     @transaction.commit_on_success
@@ -363,7 +365,8 @@ class Poll(models.Model):
 
                 localized_contacts = contacts.filter(language=language)
             if localized_contacts.exists():
-                self.log_poll_message_info(" creating messages using Message.mass_text for [%d] contacts in [%s]..." % (len(localized_contacts), language))
+                self.log_poll_message_info(" creating messages using Message.mass_text for [%d] contacts in [%s]..." % (
+                    len(localized_contacts), language))
                 messages = Message.mass_text(gettext_db(field=self.question, language=language),
                                              Connection.objects.filter(contact__in=localized_contacts).distinct(),
                                              status='Q', batch_status=self.get_start_poll_batch_status(),
@@ -418,7 +421,7 @@ class Poll(models.Model):
 
         self.log_poll_message_debug("Response PK ={}".format(str(resp.pk)))
         outgoing_message = self.default_response
-        if (self.type == Poll.TYPE_LOCATION):
+        if self.type == Poll.TYPE_LOCATION:
             location_template = STARTSWITH_PATTERN_TEMPLATE % '[a-zA-Z]*'
             regex = re.compile(location_template, re.IGNORECASE)
             if regex.search(message.text):
@@ -438,7 +441,7 @@ class Poll(models.Model):
             else:
                 resp.has_errors = True
 
-        elif (self.type == Poll.TYPE_NUMERIC):
+        elif self.type == Poll.TYPE_NUMERIC:
             try:
                 regex = re.compile(r"(-?\d+(\.\d+)?)")
                 #split the text on number regex. if the msg is of form
@@ -451,7 +454,7 @@ class Poll(models.Model):
             except IndexError:
                 resp.has_errors = True
 
-        elif ((self.type == Poll.TYPE_TEXT) or (self.type == Poll.TYPE_REGISTRATION)):
+        elif (self.type == Poll.TYPE_TEXT) or (self.type == Poll.TYPE_REGISTRATION):
             resp.eav.poll_text_value = message.text
             if self.categories:
                 for category in self.categories.all():
@@ -485,12 +488,13 @@ class Poll(models.Model):
 
         self.log_poll_message_debug("checking for categorisation...")
         if not resp.categories.all().count() and self.categories.filter(default=True).count():
-            resp.categories.add(ResponseCategory.objects.create(response=resp, category=self.categories.get(default=True)))
+            resp.categories.add(
+                ResponseCategory.objects.create(response=resp, category=self.categories.get(default=True)))
             if self.categories.get(default=True).error_category:
                 resp.has_errors = True
                 outgoing_message = self.categories.get(default=True).response
 
-        if (not resp.has_errors or not outgoing_message):
+        if not resp.has_errors or not outgoing_message:
             for respcategory in resp.categories.order_by('category__priority'):
                 if respcategory.category.response:
                     outgoing_message = respcategory.category.response
@@ -504,7 +508,7 @@ class Poll(models.Model):
             if db_message.connection.contact and db_message.connection.contact.language:
                 outgoing_message = gettext_db(language=db_message.connection.contact.language, field=outgoing_message)
 
-            return (resp, outgoing_message,)
+            return resp, outgoing_message,
 
     def get_start_poll_batch_status(self):
         if getattr(settings, "FEATURE_PREPARE_SEND_POLL", False):
@@ -566,10 +570,10 @@ class Poll(models.Model):
                 location_where = 'T9.id in %s' % (str(tuple(location.get_children().values_list('pk', flat=True))))
                 ulocation_where = 'T7.id in %s' % (str(tuple(location.get_children().values_list('pk', flat=True))))
 
-            where_list = [ \
-                'T9.lft <= locations_location.lft', \
-                'T9.rght >= locations_location.rght', \
-                location_where, \
+            where_list = [
+                'T9.lft <= locations_location.lft',
+                'T9.rght >= locations_location.rght',
+                location_where,
                 'T9.point_id = locations_point.id', ]
             select = {
                 'location_name': 'T9.name',
@@ -587,14 +591,14 @@ class Poll(models.Model):
                 tables = tables[:1]
             categorized = categorized \
                 .values('response__message__connection__contact__reporting_location__name') \
-                .extra(tables=tables, \
+                .extra(tables=tables,
                        where=where_list) \
                 .extra(select=select)
 
-            uwhere_list = [ \
-                'T7.lft <= locations_location.lft', \
-                'T7.rght >= locations_location.rght', \
-                ulocation_where, \
+            uwhere_list = [
+                'T7.lft <= locations_location.lft',
+                'T7.rght >= locations_location.rght',
+                ulocation_where,
                 'T7.point_id = locations_point.id', ]
             uselect = {
                 'location_name': 'T7.name',
@@ -615,7 +619,7 @@ class Poll(models.Model):
 
             uncategorized = uncategorized \
                 .values('message__connection__contact__reporting_location__name') \
-                .extra(tables=utables, \
+                .extra(tables=utables,
                        where=uwhere_list) \
                 .extra(select=uselect)
 
@@ -810,7 +814,7 @@ class Rule(models.Model):
                         w_regex = w_regex + r"|" + one_template % re.escape(word.strip())
                 else:
                     if len(word):
-                        w_regex = w_regex + one_template % re.escape(word.strip())
+                        w_regex += one_template % re.escape(word.strip())
 
             return w_regex
 
@@ -873,5 +877,3 @@ def send_messages_to_contacts(poll):
                                          status='Q', batch_status='Q')
             #localized_messages[language] = [messages, localized_contacts]
             poll.messages.add(*messages.values_list('pk', flat=True))
-
-
