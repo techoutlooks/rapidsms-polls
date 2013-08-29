@@ -271,9 +271,9 @@ class Poll(models.Model):
         """
         #langs = self.contacts.values_list('language',flat=True).distinct()
         langs = dict(settings.LANGUAGES).keys()
-        self.categories.create(name='yes')
-        self.categories.create(name='no')
-        self.categories.create(name='unknown', default=True, error_category=True)
+        self.categories.get_or_create(name='yes')
+        self.categories.get_or_create(name='no')
+        self.categories.get_or_create(name='unknown', default=True, error_category=True)
 
         # add one rule to yes category per language
         for l in langs:
