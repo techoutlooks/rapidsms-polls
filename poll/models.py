@@ -465,6 +465,7 @@ class Poll(models.Model):
                             resp.categories.add(rc)
                             if category.error_category:
                                 resp.has_errors = True
+                            if category.response:
                                 outgoing_message = category.response
                             break
 
@@ -487,7 +488,7 @@ class Poll(models.Model):
                     outgoing_message = None
 
         self.log_poll_message_debug("checking for categorisation...")
-        if not resp.categories.all().count() and self.categories.filter(default=True).count():
+        if not resp.categories.exists() and self.categories.filter(default=True).exists():
             resp.categories.add(
                 ResponseCategory.objects.create(response=resp, category=self.categories.get(default=True)))
             if self.categories.get(default=True).error_category:
@@ -503,7 +504,7 @@ class Poll(models.Model):
         self.log_poll_message_debug("Added categories [{}]".format([r.category for r in resp.categories.all()]))
         resp.save()
         if not outgoing_message:
-            return (resp, None,)
+            return resp, None,
         else:
             if db_message.connection.contact and db_message.connection.contact.language:
                 outgoing_message = gettext_db(language=db_message.connection.contact.language, field=outgoing_message)
