@@ -483,7 +483,10 @@ class Poll(models.Model):
             except ValidationError as e:
                 resp.has_errors = True
                 if getattr(e, 'messages', None):
-                    outgoing_message = str(e.messages[0])
+                    try:
+                        outgoing_message = str(e.messages[0])
+                    except(UnicodeEncodeError):
+                        outgoing_message = e.messages[0]
                 else:
                     outgoing_message = None
 
