@@ -1,12 +1,14 @@
-from django import forms
-
-from django.contrib.auth.models import Group
-from .models import Poll, Category, Rule ,Translation
-from rapidsms.models import Contact
-from django.forms.widgets import RadioSelect
-
 import re
+
+from django import forms
+from django.contrib.auth.models import Group
+from django.forms.widgets import RadioSelect
 from django.conf import settings
+from django.utils.translation import gettext as _
+
+from .models import Poll, Category, Rule, Translation
+from rapidsms.models import Contact
+
 
 class NewPollForm(forms.Form): # pragma: no cover
 
@@ -89,17 +91,16 @@ class EditPollForm(forms.ModelForm): # pragma: no cover
             self.fields['contacts'] = forms.ModelMultipleChoiceField(queryset=Contact.objects.all())
 
 class CategoryForm(forms.ModelForm):
-    name = forms.CharField(max_length=50, required=True)
-    default = forms.BooleanField(required=False)
-    response = forms.CharField(max_length=160, required=False)
+    name = forms.CharField(max_length=50, required=True, label=_("Name"))
+    default = forms.BooleanField(required=False, label=_("Default"))
+    response = forms.CharField(max_length=160, required=False, label=_('Response'))
     priority = forms.IntegerField(required=False, widget=forms.Select(
-            choices=tuple([('', '---')] + [(i, "%d" % i) for i in range(1, 11)])))
-    color = forms.CharField(required=False, max_length=6, widget=forms.Select(choices=(
-                (None, '---'),
+            choices=tuple([('', '---')] + [(i, "%d" % i) for i in range(1, 11)])), label=_('Priority'))
+    color = forms.CharField(required=False, max_length=6, widget=forms.Select(choices=((None, '---'),
                 ('ff9977', 'red'),
                 ('99ff77', 'green'),
                 ('7799ff', 'blue'),
-                ('ffff77', 'yellow'))))
+                ('ffff77', 'yellow'))), label=_('Color'))
 
     def clean(self):
         cleaned_data = self.cleaned_data
