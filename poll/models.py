@@ -43,12 +43,12 @@ CONTAINS_PATTERN_TEMPLATE = '^.*\s*(%s)(\s|[^a-zA-Z]|$)'
 
 # This can be configurable from settings, but here's a default list of 
 # accepted yes keywords
-YES_WORDS = ['yes', 'yeah', 'yep', 'yay', 'y']
+YES_WORDS = [_('yes'), _('yeah'), _('yep'), _('yay'), _('y')]
 
 # This can be configurable from settings, but here's a default list of
 # accepted no keywords
 
-NO_WORDS = ['no', 'nope', 'nah', 'nay', 'n']
+NO_WORDS = [_('no'), _('nope'), _('nah'), _('nay'), _('n')]
 
 
 class ResponseForm(forms.Form):
@@ -119,7 +119,7 @@ class Poll(models.Model):
 
     TYPE_CHOICES = {
         TYPE_LOCATION: dict(
-            label='Location-based',
+            label=_('Location-based'),
             type=TYPE_LOCATION,
             db_type=Attribute.TYPE_OBJECT,
             parser=None,
@@ -130,7 +130,7 @@ class Poll(models.Model):
                              ('Categories', 'categories', True, 'categories__category__name', SimpleSorter()))),
             edit_form=LocationResponseForm),
         TYPE_NUMERIC: dict(
-            label='Numeric Response',
+            label=_('Numeric Response'),
             type=TYPE_NUMERIC,
             db_type=Attribute.TYPE_FLOAT,
             parser=None,
@@ -141,7 +141,7 @@ class Poll(models.Model):
                              ('Categories', 'categories', True, 'categories__category__name', SimpleSorter()))),
             edit_form=NumericResponseForm),
         TYPE_TEXT: dict(
-            label='Free-form',
+            label=_('Free-form'),
             type=TYPE_TEXT,
             db_type=Attribute.TYPE_TEXT,
             parser=None,
@@ -151,7 +151,7 @@ class Poll(models.Model):
                             ('Categories', 'categories', True, 'categories__category__name', SimpleSorter())),
             edit_form=ResponseForm),
         TYPE_REGISTRATION: dict(
-            label='Name/registration-based',
+            label=_('Name/registration-based'),
             type=TYPE_REGISTRATION,
             db_type=Attribute.TYPE_TEXT,
             parser=None,
@@ -271,9 +271,9 @@ class Poll(models.Model):
         """
         #langs = self.contacts.values_list('language',flat=True).distinct()
         langs = dict(settings.LANGUAGES).keys()
-        self.categories.get_or_create(name='yes')
-        self.categories.get_or_create(name='no')
-        self.categories.get_or_create(name='unknown', default=True, error_category=True)
+        self.categories.get_or_create(name=_('yes'))
+        self.categories.get_or_create(name=_('no'))
+        self.categories.get_or_create(name=_('unknown'), default=True, error_category=True)
 
         # add one rule to yes category per language
         for l in langs:
@@ -287,12 +287,12 @@ class Poll(models.Model):
             no_rule_string = '|'.join(no_words)
             yes_rule_string = '|'.join(yes_words)
 
-            self.categories.get(name='yes').rules.create(
+            self.categories.get(name=_('yes')).rules.create(
                 regex=(STARTSWITH_PATTERN_TEMPLATE % yes_rule_string),
                 rule_type=Rule.TYPE_REGEX,
                 rule_string=(STARTSWITH_PATTERN_TEMPLATE % yes_rule_string))
 
-            self.categories.get(name='no').rules.create(
+            self.categories.get(name=_('no')).rules.create(
                 regex=(STARTSWITH_PATTERN_TEMPLATE % no_rule_string),
                 rule_type=Rule.TYPE_REGEX,
                 rule_string=(STARTSWITH_PATTERN_TEMPLATE % no_rule_string))
@@ -302,9 +302,9 @@ class Poll(models.Model):
 
     def is_yesno_poll(self):
         return self.categories.count() == 3 and \
-               self.categories.filter(name='yes').count() and \
-               self.categories.filter(name='no').count() and \
-               self.categories.filter(name='unknown').count()
+               self.categories.filter(name=_('yes')).count() and \
+               self.categories.filter(name=_('no')).count() and \
+               self.categories.filter(name=_('unknown')).count()
 
     def log_poll_message_warn(self, message):
         log.warn("[poll-" + str(self.pk) + "] " + message)
