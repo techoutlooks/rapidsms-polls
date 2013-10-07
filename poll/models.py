@@ -112,8 +112,8 @@ class Poll(models.Model):
     RESPONSE_TYPE_ONE = 'o' # allow only one
 
     RESPONSE_TYPE_CHOICES = (
-        (RESPONSE_TYPE_ALL, 'Allow all'),
-        (RESPONSE_TYPE_ONE, 'Allow one'),
+        (RESPONSE_TYPE_ALL, _('Allow all')),
+        (RESPONSE_TYPE_ONE, _('Allow one')),
 
     )
 
