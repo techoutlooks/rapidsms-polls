@@ -777,14 +777,14 @@ class Rule(models.Model):
     TYPE_CONTAINS = 'c'
     TYPE_REGEX = 'r'
     RULE_CHOICES = (
-        (TYPE_STARTSWITH, 'Starts With'),
-        (TYPE_CONTAINS, 'Contains'),
-        (TYPE_REGEX, 'Regex (advanced)'))
+        (TYPE_STARTSWITH, _('Starts With')),
+        (TYPE_CONTAINS, _('Contains')),
+        (TYPE_REGEX, _('Regex (advanced)')))
 
     RULE_DICTIONARY = {
-        TYPE_STARTSWITH: 'Starts With',
-        TYPE_CONTAINS: 'Contains',
-        TYPE_REGEX: 'Regex (advanced)',
+        TYPE_STARTSWITH: _('Starts With'),
+        TYPE_CONTAINS: _('Contains'),
+        TYPE_REGEX: _('Regex (advanced)'),
     }
 
     regex = models.CharField(max_length=256)
@@ -792,7 +792,7 @@ class Rule(models.Model):
     rule_type = models.CharField(max_length=2, choices=RULE_CHOICES)
     rule_string = models.CharField(max_length=256, null=True)
     rule = models.IntegerField(max_length=10,
-                               choices=((contains_all_of, "contains_all_of"), (contains_one_of, "contains_one_of"),),
+                               choices=((contains_all_of, _("contains_all_of")), (contains_one_of, _("contains_one_of")),),
                                null=True)
 
     def get_regex(self):
