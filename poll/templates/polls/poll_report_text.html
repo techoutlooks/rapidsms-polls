@@ -1,22 +1,23 @@
+{% load i18n %}
 <div id="poll_header">
 <div class="buttons">
     <a href="javascript:void(0)" onclick="$.get('{% url poll.views.demo poll.pk %}')" style="float:right"> 
-      <img border="0" src="/static/rapidsms/icons/silk/package_go.png" alt=""/>Send Alerts
+      <img border="0" src="/static/rapidsms/icons/silk/package_go.png" alt=""/>{% trans "Send Alerts" %}
     </a>
 </div>
 <div class="name">{{ poll.name }} :
-  <span class="participants">{{ poll.contacts.count }} participant{{ poll.contacts.count|pluralize }}, {{ total_responses }} total response{{ total_responses|pluralize }} ({{ response_rate|floatformat }}% response rate)</span>
+  <span class="participants">{{ poll.contacts.count }} {% trans "participant" %}{{ poll.contacts.count|pluralize }}, {{ total_responses }} {% trans "total response" %}{{ total_responses|pluralize }} ({{ response_rate|floatformat }}% {% trans "response rate" %})</span>
 </div>
 <div class="question">{{ poll.question }}</div>
-<div class="response">Response: {{ poll.default_response }}</div>
+<div class="response">{% trans "Response" %}: {{ poll.default_response }}</div>
 </div>
 <table width="100%" class="poll_table"> 
     <thead>
-            <th>Location</th>
+            <th>{% trans "Location" %}</th>
             {% for category in categories %}
                 <th>{{ category.name }}</th>
             {% endfor %}
-            <th>Uncategorized</th>
+            <th>{% trans "Uncategorized" %}</th>
     </thead>
     <tbody>
         {% for location_data in report_rows %}
@@ -28,7 +29,7 @@
                             {{ location_data.location.name }}
                         </a>
                     {% else %}
-                        Unknown location
+                    {% trans "Unknown location" %}
                     {% endif %}
                 </td>
                 {% for category_name, category_color, total, percent in location_data.report_data %}
