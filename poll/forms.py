@@ -97,10 +97,10 @@ class CategoryForm(forms.ModelForm):
     priority = forms.IntegerField(required=False, widget=forms.Select(
             choices=tuple([('', '---')] + [(i, "%d" % i) for i in range(1, 11)])), label=_('Priority'))
     color = forms.CharField(required=False, max_length=6, widget=forms.Select(choices=((None, '---'),
-                ('ff9977', 'red'),
-                ('99ff77', 'green'),
-                ('7799ff', 'blue'),
-                ('ffff77', 'yellow'))), label=_('Color'))
+                ('ff9977', _('red')),
+                ('99ff77', _('green')),
+                ('7799ff', _('blue')),
+                ('ffff77', _('yellow')))), label=_('Color'))
 
     def clean(self):
         cleaned_data = self.cleaned_data
