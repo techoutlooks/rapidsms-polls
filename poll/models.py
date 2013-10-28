@@ -118,17 +118,6 @@ class Poll(models.Model):
     )
 
     TYPE_CHOICES = {
-        TYPE_LOCATION: dict(
-            label=_('Location-based'),
-            type=TYPE_LOCATION,
-            db_type=Attribute.TYPE_OBJECT,
-            parser=None,
-            view_template='polls/response_location_view.html',
-            edit_template='polls/response_location_edit.html',
-            report_columns=((('Text', 'text', True, 'message__text', SimpleSorter()),
-                             ('Location', 'location', True, 'eav_values__generic_value_id', SimpleSorter()),
-                             ('Categories', 'categories', True, 'categories__category__name', SimpleSorter()))),
-            edit_form=LocationResponseForm),
         TYPE_NUMERIC: dict(
             label=_('Numeric Response'),
             type=TYPE_NUMERIC,
@@ -421,24 +410,14 @@ class Poll(models.Model):
 
         self.log_poll_message_debug("Response PK ={}".format(str(resp.pk)))
         outgoing_message = self.default_response
-        if self.type == Poll.TYPE_LOCATION:
-            location_template = STARTSWITH_PATTERN_TEMPLATE % '[a-zA-Z]*'
-            regex = re.compile(location_template, re.IGNORECASE | re.UNICODE)
-            if regex.search(message.text):
-                spn = regex.search(message.text).span()
-                location_str = message.text[spn[0]:spn[1]]
-                area = None
-                area_names = Location.objects.all().values_list('name', flat=True)
-                area_names_lower = [ai.lower() for ai in area_names]
-                area_names_matches = difflib.get_close_matches(location_str.lower(), area_names_lower)
-                if area_names_matches:
-                    area = Location.objects.filter(name__iexact=area_names_matches[0])[0]
-                    resp.eav.poll_location_value = area
-                    resp.save()
-                else:
-                    resp.has_errors = True
 
-            else:
+        if self.type == Poll.TYPE_LOCATION:
+            typedef = Poll.TYPE_CHOICES[self.type]
+            try:
+                cleaned_value = typedef['parser'](message.text)
+                resp.eav.poll_location_value = cleaned_value
+                resp.save()
+            except ValidationError as e:
                 resp.has_errors = True
 
         elif self.type == Poll.TYPE_NUMERIC:
@@ -449,6 +428,7 @@ class Poll(models.Model):
                 msg_parts = regex.split(message.text)
                 if len(msg_parts) == 4:
                     resp.eav.poll_number_value = float(msg_parts[1])
+
                 else:
                     resp.has_errors = True
             except IndexError:
