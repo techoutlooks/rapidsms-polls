@@ -717,6 +717,11 @@ class Category(models.Model):
     def __unicode__(self):
         return u'%s' % self.name
 
+    def save(self, force_insert=False, force_update=False, using=None):
+        if self.default and self.poll.categories.exclude(pk=self.pk).filter(default=True).exists():
+            self.poll.categories.exclude(pk=self.pk).filter(default=True).update(default=False)
+        super(Category, self).save()
+
 
 class Response(models.Model):
     """
