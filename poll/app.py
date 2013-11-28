@@ -17,7 +17,7 @@ class App(AppBase):
 
         if response_msg == poll.default_response:
             try:
-                batch = MessageBatch.objects.get(name=str(poll.pk))
+                batch = MessageBatch.objects.get(name=unicode(poll.pk))
                 batch.status = "Q"
                 batch.save()
                 msg = Message.objects.create(text=response_msg, status="Q", connection=message.connection,
@@ -44,7 +44,7 @@ class App(AppBase):
                     .filter(Q(end_date=None) | Q(end_date__gt=datetime.datetime.now())) \
                     .latest('start_date')
 
-                log.debug("[poll-app] Found poll for message [{}]".format(str(poll)))
+                log.debug("[poll-app] Found poll for message [{}]".format(unicode(poll)))
 
                 if poll.responses.filter(contact=message.connection.contact).exists():
                     old_response = poll.responses.filter(contact=message.connection.contact)[0]
@@ -67,8 +67,7 @@ class App(AppBase):
                         log.debug("[poll-app] Message handled.")
                         return False
                     else:
-                        log.debug("[poll-app] Recorded response but NOT sending the response message [%s]." % str(
-                            response_msg))
+                        log.debug("[poll-app] Recorded response but NOT sending the response message")
                         log.debug("[poll-app] Message handled.")
                         return False
 
