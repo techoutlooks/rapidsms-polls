@@ -2,10 +2,10 @@
 {% block remaining_content %}
     <td class="center response_text_col">
       {% ifequal response.poll.type "t" %}
-        {{ response.eav.poll_text_value }}
+        {{ response.eav.poll_text_value|default:response.message.text }}
       {% else %}
         {% ifequal response.poll.type "n" %}
-          {{ response.eav.poll_number_value }}
+          {{ response.eav.poll_number_value|default:response.message.text }}
         {% endifequal %}
       {% endifequal %}
     </td>
