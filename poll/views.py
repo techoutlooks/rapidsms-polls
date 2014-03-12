@@ -20,7 +20,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Connection, Backend
 from eav.models import Attribute
 from django.core.urlresolvers import reverse
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import cache_control, never_cache
 from django.conf import settings
 
 
@@ -613,6 +613,7 @@ def add_category(req, poll_id):
 
 @login_required
 @permission_required('poll.can_edit_poll')
+@never_cache
 def delete_poll(req, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
     if req.method == 'POST':
