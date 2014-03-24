@@ -57,7 +57,7 @@ def polls(req):
 
 def demo(req, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
-    (b1, created) = Backend.objects.get_or_create(name='dmark')
+    (b1, created) = Backend.objects.get_or_create(name='yo')
 
     # Terra
 
@@ -108,7 +108,7 @@ def new_poll(req):
 
             if  getattr(settings,"LANGUAGES",None):
                 langs=dict(settings.LANGUAGES)
-                
+
                 for language in dict(settings.LANGUAGES).keys():
                     if not language =="en":
                         int_default_response ='default_response_%s'%langs[language]
