@@ -400,7 +400,6 @@ class Poll(models.Model):
 
     def process_response(self, message):
         self.log_poll_message_debug("processing response...")
-        db_message = None
         if hasattr(message, 'db_message'):
             db_message = message.db_message
         else:
@@ -447,7 +446,6 @@ class Poll(models.Model):
                                 resp.has_errors = True
                             if category.response:
                                 outgoing_message = category.response
-                            break
 
         elif self.type in Poll.TYPE_CHOICES:
             typedef = Poll.TYPE_CHOICES[self.type]
