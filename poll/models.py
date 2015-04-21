@@ -225,9 +225,9 @@ class Poll(models.Model):
             app_label, model_name = settings.BLACKLIST_MODEL.rsplit(".")
             try:
                 blacklists = models.get_model(app_label, model_name)._default_manager.values_list('connection')
-                contactsBefore = len(contacts)
+                contactsBefore = contacts.count()
                 contacts = contacts.exclude(connection__pk__in=blacklists)
-                contactsAfter = len(contacts)
+                contactsAfter = contacts.count()
                 log.info(
                     "[Poll.create_with_bulk] excluded [%d] blacklisted contacts. This poll will have [%d] active contacts." % (
                         (contactsBefore - contactsAfter), contactsAfter))
