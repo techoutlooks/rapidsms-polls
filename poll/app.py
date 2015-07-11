@@ -13,6 +13,10 @@ log = logging.getLogger(__name__)
 
 
 class App(AppBase):
+    def start(self): 
+        pass
+        
+        
     def respond_to_message(self, message, response_msg, poll):
 
         if response_msg == poll.default_response:
@@ -30,16 +34,20 @@ class App(AppBase):
 
 
     def handle(self, message):
+        if not hasattr(message, 'db_message'):
+            log.debug("[poll-app] [{}] Cannot process incoming message.".format(message.connection.identity))
+            
         # see if this contact matches any of our polls
         if message.connection is not None and message.db_message.pk:
             log.debug("[poll-app] [{}] Handling incoming message [pk={}]...".format(message.connection.identity,
                                                                                     message.db_message.pk))
-
         if message.db_message is None:
             log.debug("[poll-app] Incoming message doesn't have a db message!!")
 
-        if message.connection.contact:
+        if message.connection.identity:
             try:
+                from rapidsms.models import Contact                
+                message.connection.contact, contact_created = Contact.objects.get_or_create(connection__identity__contains=message.connection.identity)
                 poll = Poll.objects.filter(contacts=message.connection.contact).exclude(start_date=None) \
                     .filter(Q(end_date=None) | Q(end_date__gt=datetime.datetime.now())) \
                     .latest('start_date')

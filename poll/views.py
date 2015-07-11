@@ -99,7 +99,8 @@ def new_poll(req):
             contacts = form.cleaned_data['contacts']
             if hasattr(Contact, 'groups'):
                 groups = form.cleaned_data['groups']
-            contacts = Contact.objects.filter(Q(pk__in=contacts) | Q(groups__in=groups)).distinct()
+            #contacts = Contact.objects.filter(Q(pk__in=contacts) | Q(groups__in=groups)).distinct()
+            contacts = Contact.objects.filter(Q(pk__in=contacts)).distinct()
 
             name = form.cleaned_data['name']
             p_type = form.cleaned_data['type']

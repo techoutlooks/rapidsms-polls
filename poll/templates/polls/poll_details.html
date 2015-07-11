@@ -8,6 +8,7 @@
         Edit
     </a>
     <form style="border:0px" action="{% url 'poll.views.start_poll' poll.pk %}" method="POST" id="startPollForm">
+    {% csrf_token %}
     <a onclick="submitForm(this, '#poll_header');" href="javascript:void(0);">
         <img src="{% static 'poll/icons/silk/phone.png' %}" alt=""/> 
         Start Poll
