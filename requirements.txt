@@ -1,0 +1,4 @@
+django-uni-form
+# Below have been pushed to setup.dependency_links
+#-e git+https://github.com/techoutlooks/rapidsms.git#egg=rapidsms
+#-e git://github.com/mvpdev/django-eav.git@d41f10468c428e036725b48518ecd846e7580c9d#egg=django_eav-master

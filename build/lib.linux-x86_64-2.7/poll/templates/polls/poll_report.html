@@ -1,0 +1,22 @@
+{% extends "polls/layout.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Polls{% endblock %}
+
+{% block javascripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'poll/javascripts/poll.js' %}"></script> 
+{% endblock %}
+
+{% block content %}
+    <div id="poll_report">
+        {% ifequal poll.type 't' %}
+            {% include "polls/poll_report_text.html" %}
+        {% else %}
+            {% ifequal poll.type 'n' %}
+                {% include "polls/poll_report_numeric.html" %}
+            {% endifequal %}
+        {% endifequal %}
+    </div>
+{% endblock %}
