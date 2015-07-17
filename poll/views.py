@@ -205,7 +205,7 @@ def view_report(
         locations = get_object_or_404(Location, pk=location_id)
         locations = [locations]
     else:
-        locations = Location.tree.root_nodes().order_by('name'
+        locations = Location.objects.all().order_by('name'
                 ).distinct()
 
 
